@@ -1,5 +1,5 @@
 ---
-title: "Urchin environmental data cleaning"
+title: "Urchin environmental data"
 format: html
 toc: true
 toc-location: left
@@ -10,7 +10,9 @@ toc-title: "Contents"
 
 This document is set up into 3 different sections: 1. set up, 2. cleaning, and 3. getting the date window. At each step of the way, there's some intermediate data frame created to get to the final product. I'm mostly making the assumption that you do want to see these intermediate steps (I often do, just to get a gut check that what I'm doing gives me what I expect), but there are definitely ways to streamline this if you don't want to use that structure.  
 
-In any case, this document takes the `ZOE_RS_Data.xlsx` in its entirety and runs through the cleaning/wrangling steps before getting to the last part, where you choose the time window and can either get a data frame with all the environmental conditions for all the dates within the window (not summarized, just raw) for both sites at all 4 spatial scales, or you can continue on and summarize all those values by site by scale to get mean and variance for each.
+In any case, this document takes the `ZOE_RS_Data.xlsx` in its entirety and runs through the cleaning/wrangling steps before getting to the last part, where you choose the time window and can either get a data frame with all the environmental conditions for all the dates within the window (not summarized, just raw) for both sites at all 4 spatial scales, or you can continue on and summarize all those values by site by scale to get mean and variance for each.  
+
+The TL;DR version (no explaining, just code) is [here](https://github.com/an-bui/urchin-enviro-data/blob/main/code/urchin-environmental-data.R).
 
 # 1. Set up
 
@@ -155,7 +157,6 @@ env_full <- sst_clean %>%
          scale_km = fct_relevel(as_factor(scale_km), "10", "25", "50", "100")) %>% 
   # arranging the whole data frame by date to make it easier to parse
   arrange(date)
-
 ```
 
 As a random sample of rows:
@@ -230,6 +231,8 @@ Getting the summary of environmental conditions within that window:
 
 ```{r}
 test_summary <- window_summary(test_df)
+
+test_summary
 ```
 
 

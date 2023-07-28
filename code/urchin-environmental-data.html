@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Urchin environmental data cleaning</title>
+<title>Urchin environmental data</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -104,7 +104,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Urchin environmental data cleaning</h1>
+<h1 class="title">Urchin environmental data</h1>
 </div>
 
 
@@ -123,6 +123,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h1>General info</h1>
 <p>This document is set up into 3 different sections: 1. set up, 2. cleaning, and 3. getting the date window. At each step of the way, there’s some intermediate data frame created to get to the final product. I’m mostly making the assumption that you do want to see these intermediate steps (I often do, just to get a gut check that what I’m doing gives me what I expect), but there are definitely ways to streamline this if you don’t want to use that structure.</p>
 <p>In any case, this document takes the <code>ZOE_RS_Data.xlsx</code> in its entirety and runs through the cleaning/wrangling steps before getting to the last part, where you choose the time window and can either get a data frame with all the environmental conditions for all the dates within the window (not summarized, just raw) for both sites at all 4 spatial scales, or you can continue on and summarize all those values by site by scale to get mean and variance for each.</p>
+<p>The TL;DR version (no explaining, just code) is <a href="https://github.com/an-bui/urchin-enviro-data/blob/main/code/urchin-environmental-data.R">here</a>.</p>
 </section>
 <section id="set-up" class="level1">
 <h1>1. Set up</h1>
@@ -288,11 +289,11 @@ Note
 <pre><code># A tibble: 5 × 7
   date       site       scale_km sst_c no3_umol_l_1 npp_mg_c_m_2_d_1 chl_mg_m_3
   &lt;date&gt;     &lt;chr&gt;      &lt;fct&gt;    &lt;dbl&gt;        &lt;dbl&gt;            &lt;dbl&gt;      &lt;dbl&gt;
-1 2007-01-16 gaviota    100       12.8         3.29             811.      1.51 
-2 2018-05-11 fort bragg 10        10.6        15.9             1401.      2.46 
-3 2015-08-24 fort bragg 50        15.4         0                923.      0.865
-4 2017-05-26 gaviota    25        13.2         2.08            2091.      3.44 
-5 2006-05-26 fort bragg 50        12.5         3.77            1329.      1.55 </code></pre>
+1 1998-03-07 gaviota    100       14.4       0.418              943.       1.24
+2 2017-10-08 gaviota    50        17.7       0.0871            1603.       1.64
+3 2010-09-13 gaviota    50        14.6       1.94              1977.       3.08
+4 1981-12-17 fort bragg 50        12.9       1.32                NA       NA   
+5 1991-04-11 fort bragg 50        10.0      19.9                 NA       NA   </code></pre>
 </div>
 </div>
 </section>
@@ -373,6 +374,22 @@ Note
 <div class="cell-output cell-output-stderr">
 <pre><code>`summarise()` has grouped output by 'site'. You can override using the
 `.groups` argument.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>test_summary</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 8 × 14
+# Groups:   site [2]
+  site   scale_km sst_mean sst_var sst_n no3_mean no3_var no3_n npp_mean npp_var
+  &lt;chr&gt;  &lt;fct&gt;       &lt;dbl&gt;   &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt;   &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt;   &lt;dbl&gt;
+1 fort … 10           11.6  0.124      6     9.48   5.39      6     736.  5.98e3
+2 fort … 25           11.6  0.126      6     9.34   5.50      6     727.  6.58e3
+3 fort … 50           11.6  0.125      6     9.37   5.40      6     674.  7.68e3
+4 fort … 100          11.6  0.114      6     9.45   4.95      6     643.  1.56e4
+5 gavio… 10           13.4  0.171      6     1.86   0.702     6    2128.  2.48e6
+6 gavio… 25           13.4  0.169      6     1.87   0.691     6    1982.  1.59e6
+7 gavio… 50           13.4  0.119      6     1.75   0.522     6    1449.  5.61e5
+8 gavio… 100          13.5  0.0692     6     1.51   0.270     6    1005.  1.22e5
+# ℹ 4 more variables: npp_n &lt;int&gt;, chl_mean &lt;dbl&gt;, chl_var &lt;dbl&gt;, chl_n &lt;int&gt;</code></pre>
 </div>
 </div>
 </section>
