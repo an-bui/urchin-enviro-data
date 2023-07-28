@@ -1,0 +1,113 @@
+---
+title: "Urchin environmental data cleaning"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# 0. Set up
+
+## a. packages
+
+```{r libraries}
+library(tidyverse) # general cleaning and use
+library(here) # helps organize files
+library(readxl) # reads in excel files
+library(janitor) # helps clean up data frames
+```
+
+## b. data
+
+```{r reading-data}
+z_satData <- read_csv(here("data", "CUTI_BEUTI_39N_34N.csv"))
+sst <- read_xlsx(here("data", "ZOE_RS_Data.xlsx"), sheet = "SST")
+no3 <- read_xlsx(here("data", "ZOE_RS_Data.xlsx"), sheet = "NO3")
+npp <- read_xlsx(here("data", "ZOE_RS_Data.xlsx"), sheet = "NPP")
+chl <- read_xlsx(here("data", "ZOE_RS_Data.xlsx"), sheet = "CHL")
+```
+
+# 1. cleaning
+
+## a. cleaning each environmental data set
+
+### i. cleaning function
+
+Cleaning steps are going to repeat for `sst`, `no3`, `npp`, and `chla` data frames, so writing a function here to make it a little faster:
+
+```{r}
+cleaning_fxn <- function(df) {
+  # takes the data frame name as an argument and then
+  df %>% 
+    # makes column names easier to parse using function from {janitor} and then
+    clean_names() %>% 
+    # makes a column for date by combining the year, month, and day columns and then
+    unite("date", year, month_s, day_s, sep = "-", remove = FALSE) %>% 
+    # makes sure the new date column is actually being read in as a date
+    mutate(date = as_date(date))
+}
+```
+
+### ii. using the function
+
+Put into practice:
+
+```{r}
+sst_clean <- cleaning_fxn(sst)
+no3_clean <- cleaning_fxn(no3)
+npp_clean <- cleaning_fxn(npp)
+chl_clean <- cleaning_fxn(chl)
+```
+
+And looking at the first 5 rows of the `sst_clean` data frame just to double check it all worked:
+
+```{r}
+head(sst_clean, 5)
+```
+
+## b. combining data frames
+
+There is an odd date in SST and NO3: 2016-03-21 has multiple values?
+
+The rationale for combining each data frame for `sst`, `chl`, `no3`, and `npp` into one is that you can then find the window for each urchin once, as opposed to doing it 4 different times for the 4 conditions. Doing that below:
+
+```{r}
+# joining all four data frames together ----
+env_full <- full_join(sst_clean, no3_clean, by = "date", relationship = "many-to-many") %>% 
+  full_join(., chl_clean, by = "date") %>% 
+  full_join(., npp_clean, by = "date") %>% 
+  
+  # taking out extraneous columns ----
+  select(!c(year.x:day_e.x, year.y:day_e.y, year.x.x:day_e.x.x, year.y.y:day_e.y.y, 
+            units_mg_m_3, units_mg_c_m_2_d_1, units_umol_l_1, units_c)) %>% 
+  
+  # renaming columns to reflect the data that's in them ----
+  rename_with(~str_replace(., ".x.x", "_chl_mg_m_3")) %>% 
+  rename_with(~str_replace(., ".y.y", "_npp_mg_c_m_2_d_1")) %>% 
+  rename_with(~str_replace(., ".x", "_sst_c")) %>% 
+  rename_with(~str_replace(., ".y", "_no3_umol_l_1")) %>% 
+  
+  # arranging the data frame by date, because that makes it a little easier to parse ----
+  arrange(date)
+```
+
+
+# 2. testing it out
+
+So let's say an urchin was collected on 2007-04-06.
+
+```{r}
+urchin_test <- env_full %>% 
+  filter(date <= "2007-04-06" & date >= "2007-02-15")
+```
+
+
+
+
+
+
+
+
+
+
