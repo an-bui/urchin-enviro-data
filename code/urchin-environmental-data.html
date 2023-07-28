@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.353">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Urchin environmental data cleaning</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="urchin-environmental-data_files/libs/clipboard/clipboard.min.js"></script>
+<script src="urchin-environmental-data_files/libs/quarto-html/quarto.js"></script>
+<script src="urchin-environmental-data_files/libs/quarto-html/popper.min.js"></script>
+<script src="urchin-environmental-data_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="urchin-environmental-data_files/libs/quarto-html/anchor.min.js"></script>
+<link href="urchin-environmental-data_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="urchin-environmental-data_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="urchin-environmental-data_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="urchin-environmental-data_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="urchin-environmental-data_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body>
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article toc-left">
+<div id="quarto-sidebar-toc-left" class="sidebar toc-left">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Contents</h2>
+   
+  <ul>
+  <li><a href="#general-info" id="toc-general-info" class="nav-link active" data-scroll-target="#general-info">General info</a></li>
+  <li><a href="#set-up" id="toc-set-up" class="nav-link" data-scroll-target="#set-up">1. Set up</a>
+  <ul class="collapse">
+  <li><a href="#a.-packages" id="toc-a.-packages" class="nav-link" data-scroll-target="#a.-packages">a. packages</a></li>
+  <li><a href="#b.-data" id="toc-b.-data" class="nav-link" data-scroll-target="#b.-data">b. data</a></li>
+  </ul></li>
+  <li><a href="#cleaning" id="toc-cleaning" class="nav-link" data-scroll-target="#cleaning">2. cleaning</a>
+  <ul class="collapse">
+  <li><a href="#a.-cleaning-each-environmental-data-set" id="toc-a.-cleaning-each-environmental-data-set" class="nav-link" data-scroll-target="#a.-cleaning-each-environmental-data-set">a. cleaning each environmental data set</a>
+  <ul class="collapse">
+  <li><a href="#i.-cleaning-function" id="toc-i.-cleaning-function" class="nav-link" data-scroll-target="#i.-cleaning-function">i. cleaning function</a></li>
+  <li><a href="#ii.-using-the-function" id="toc-ii.-using-the-function" class="nav-link" data-scroll-target="#ii.-using-the-function">ii. using the function</a></li>
+  </ul></li>
+  <li><a href="#b.-combining-data-frames" id="toc-b.-combining-data-frames" class="nav-link" data-scroll-target="#b.-combining-data-frames">b. combining data frames</a></li>
+  </ul></li>
+  <li><a href="#getting-the-date-window" id="toc-getting-the-date-window" class="nav-link" data-scroll-target="#getting-the-date-window">3. getting the date window</a></li>
+  </ul>
+</nav>
+</div>
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Urchin environmental data cleaning</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="general-info" class="level1">
+<h1>General info</h1>
+<p>This document is set up into 3 different sections: 1. set up, 2. cleaning, and 3. getting the date window. At each step of the way, there’s some intermediate data frame created to get to the final product. I’m mostly making the assumption that you do want to see these intermediate steps (I often do, just to get a gut check that what I’m doing gives me what I expect), but there are definitely ways to streamline this if you don’t want to use that structure.</p>
+<p>In any case, this document takes the <code>ZOE_RS_Data.xlsx</code> in its entirety and runs through the cleaning/wrangling steps before getting to the last part, where you choose the time window and can either get a data frame with all the environmental conditions for all the dates within the window (not summarized, just raw) for both sites at all 4 spatial scales, or you can continue on and summarize all those values by site by scale to get mean and variance for each.</p>
+</section>
+<section id="set-up" class="level1">
+<h1>1. Set up</h1>
+<section id="a.-packages" class="level2">
+<h2 class="anchored" data-anchor-id="a.-packages">a. packages</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse) <span class="co"># general cleaning and use</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(here) <span class="co"># helps organize files</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readxl) <span class="co"># reads in excel files</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(janitor) <span class="co"># helps clean up data frames</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="b.-data" class="level2">
+<h2 class="anchored" data-anchor-id="b.-data">b. data</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>sst <span class="ot">&lt;-</span> <span class="fu">read_xlsx</span>(<span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"ZOE_RS_Data.xlsx"</span>), <span class="at">sheet =</span> <span class="st">"SST"</span>, <span class="at">na =</span> <span class="fu">c</span>(<span class="st">"NA"</span>, <span class="st">"NaN"</span>))</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>no3 <span class="ot">&lt;-</span> <span class="fu">read_xlsx</span>(<span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"ZOE_RS_Data.xlsx"</span>), <span class="at">sheet =</span> <span class="st">"NO3"</span>, <span class="at">na =</span> <span class="fu">c</span>(<span class="st">"NA"</span>, <span class="st">"NaN"</span>))</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>npp <span class="ot">&lt;-</span> <span class="fu">read_xlsx</span>(<span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"ZOE_RS_Data.xlsx"</span>), <span class="at">sheet =</span> <span class="st">"NPP"</span>, <span class="at">na =</span> <span class="fu">c</span>(<span class="st">"NA"</span>, <span class="st">"NaN"</span>))</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>chl <span class="ot">&lt;-</span> <span class="fu">read_xlsx</span>(<span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"ZOE_RS_Data.xlsx"</span>), <span class="at">sheet =</span> <span class="st">"CHL"</span>, <span class="at">na =</span> <span class="fu">c</span>(<span class="st">"NA"</span>, <span class="st">"NaN"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="cleaning" class="level1">
+<h1>2. cleaning</h1>
+<section id="a.-cleaning-each-environmental-data-set" class="level2">
+<h2 class="anchored" data-anchor-id="a.-cleaning-each-environmental-data-set">a. cleaning each environmental data set</h2>
+<section id="i.-cleaning-function" class="level3">
+<h3 class="anchored" data-anchor-id="i.-cleaning-function">i. cleaning function</h3>
+<p>Cleaning steps are going to repeat for <code>sst</code>, <code>no3</code>, <code>npp</code>, and <code>chl</code> data frames, so writing a function here to make it a little faster:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>cleaning_fxn <span class="ot">&lt;-</span> <span class="cf">function</span>(type) {</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># function set up part 1: choose the right data frame based on the "type" ----</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  df <span class="ot">&lt;-</span> <span class="cf">if</span>(type <span class="sc">==</span> <span class="st">"sst"</span>) {</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    sst</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> <span class="cf">if</span>(type <span class="sc">==</span> <span class="st">"no3"</span>) {</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    no3</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> <span class="cf">if</span>(type <span class="sc">==</span> <span class="st">"npp"</span>) {</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    npp</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> <span class="cf">if</span>(type <span class="sc">==</span> <span class="st">"chl"</span>) {</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    chl</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>      <span class="fu">warning</span>(<span class="st">"Did you provide a data type? Double check!"</span>)</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>      <span class="fu">return</span>(<span class="cn">NA</span>)</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>  <span class="co"># function set up part 2: create a label for the column of values based on the data type ----</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>  label <span class="ot">&lt;-</span> <span class="cf">if</span>(type <span class="sc">==</span> <span class="st">"sst"</span>) {</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    <span class="st">"sst_c"</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> <span class="cf">if</span>(type <span class="sc">==</span> <span class="st">"no3"</span>) {</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>    <span class="st">"no3_umol_l_1"</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> <span class="cf">if</span>(type <span class="sc">==</span> <span class="st">"npp"</span>) {</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>    <span class="st">"npp_mg_c_m_2_d_1"</span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> <span class="cf">if</span>(type <span class="sc">==</span> <span class="st">"chl"</span>) {</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>    <span class="st">"chl_mg_m_3"</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>      <span class="fu">warning</span>(<span class="st">"Did you provide a data type? Double check!"</span>)</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>      <span class="fu">return</span>(<span class="cn">NA</span>)</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>  <span class="co"># what the actual function does ----</span></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>  <span class="co"># takes the data frame name as an argument and then</span></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>  df <span class="sc">%&gt;%</span> </span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>    <span class="co"># makes column names easier to parse using function from {janitor} and then</span></span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>    <span class="fu">clean_names</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>    <span class="co"># removes the "units" column because the units are going into the value column label and then</span></span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>    <span class="fu">select</span>(<span class="sc">!</span>(<span class="fu">contains</span>(<span class="st">"units"</span>))) <span class="sc">%&gt;%</span> </span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>    <span class="co"># puts the data frame into "tidy" format, where each row is an observation and then</span></span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pivot_longer</span>(<span class="at">cols =</span> f_10<span class="sc">:</span>g_100, <span class="at">names_to =</span> <span class="st">"name"</span>, <span class="at">values_to =</span> label) <span class="sc">%&gt;%</span> </span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>    <span class="co"># separates the column with site_scale into two separate columns and then</span></span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>    <span class="fu">separate_wider_delim</span>(<span class="at">cols =</span> name, <span class="at">delim =</span> <span class="st">"_"</span>, <span class="at">names =</span> <span class="fu">c</span>(<span class="st">"site"</span>, <span class="st">"scale_km"</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>    <span class="co"># makes an "observation ID": some information that allows you to uniquely identify each observation</span></span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>    <span class="fu">unite</span>(<span class="st">"obs_ID"</span>, year, month_s, day_s, site, scale_km, <span class="at">remove =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="ii.-using-the-function" class="level3">
+<h3 class="anchored" data-anchor-id="ii.-using-the-function">ii. using the function</h3>
+<p>Put into practice:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>sst_clean <span class="ot">&lt;-</span> <span class="fu">cleaning_fxn</span>(<span class="st">"sst"</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>no3_clean <span class="ot">&lt;-</span> <span class="fu">cleaning_fxn</span>(<span class="st">"no3"</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>npp_clean <span class="ot">&lt;-</span> <span class="fu">cleaning_fxn</span>(<span class="st">"npp"</span>)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>chl_clean <span class="ot">&lt;-</span> <span class="fu">cleaning_fxn</span>(<span class="st">"chl"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>And looking at the first 5 rows of the <code>sst_clean</code> data frame just to double check it all worked:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(sst_clean, <span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 5 × 11
+  obs_ID       year doy_s doy_e month_s day_s month_e day_e site  scale_km sst_c
+  &lt;chr&gt;       &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;    &lt;dbl&gt;
+1 1981_9_3_f…  1981   246   250       9     3       9     7 f     10        11.2
+2 1981_9_3_f…  1981   246   250       9     3       9     7 f     25        11.3
+3 1981_9_3_f…  1981   246   250       9     3       9     7 f     50        11.3
+4 1981_9_3_f…  1981   246   250       9     3       9     7 f     100       11.7
+5 1981_9_3_g…  1981   246   250       9     3       9     7 g     10        17.5</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="b.-combining-data-frames" class="level2">
+<h2 class="anchored" data-anchor-id="b.-combining-data-frames">b. combining data frames</h2>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>There is an odd date in SST and NO3: 2016-03-21 has multiple values?</p>
+</div>
+</div>
+<p>The rationale for combining each data frame for <code>sst</code>, <code>chl</code>, <code>no3</code>, and <code>npp</code> into one is that you can then find the window for each urchin once, as opposed to doing it 4 different times for the 4 conditions. Also, then you can look at a single date and say what the environmental conditions were for that date, figure out if any measurements are missing for that date, etc. Doing that below:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># create a data frame called env_full starting with sst_clean</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>env_full <span class="ot">&lt;-</span> sst_clean <span class="sc">%&gt;%</span> </span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># select only columns of interest</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(obs_ID, sst_c) <span class="sc">%&gt;%</span> </span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="co"># joining ----</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="co"># selecting columns of interest from no3_clean (only observation ID and the value)</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="co"># joining with sst_clean</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">full_join</span>(<span class="fu">select</span>(no3_clean, obs_ID, no3_umol_l_1), </span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>            <span class="co"># setting this relationship because of the multiple values thing</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>            <span class="at">relationship =</span> <span class="st">"many-to-many"</span>, </span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>            <span class="co"># joining both data frames by the obs_ID column</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>            <span class="at">by =</span> <span class="st">"obs_ID"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>  <span class="co"># selecting columns of interest from npp_clean and joining</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">full_join</span>(<span class="fu">select</span>(npp_clean, obs_ID, npp_mg_c_m_2_d_1), </span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>            <span class="at">by =</span> <span class="st">"obs_ID"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>  <span class="co"># selecting columns of interest from chl_clean and joining</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">full_join</span>(<span class="fu">select</span>(chl_clean, obs_ID, chl_mg_m_3),</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>            <span class="at">by =</span> <span class="st">"obs_ID"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>  <span class="co"># getting the metadata ----</span></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>  <span class="co"># separating the obs_ID column into the meaningful components</span></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">separate_wider_delim</span>(<span class="at">cols =</span> <span class="st">"obs_ID"</span>, <span class="at">delim =</span> <span class="st">"_"</span>, </span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>                       <span class="at">names =</span> <span class="fu">c</span>(<span class="st">"year"</span>, <span class="st">"month_s"</span>, <span class="st">"day_s"</span>, <span class="st">"site"</span>, <span class="st">"scale_km"</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>  <span class="co"># creating a column for date by combining year, month_s, day_s</span></span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unite</span>(<span class="st">"date"</span>, year, month_s, day_s, <span class="at">sep =</span> <span class="st">"-"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>  <span class="co"># general cleaning ----</span></span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>  <span class="co"># making sure the date is actually read as a date</span></span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">date =</span> <span class="fu">as_date</span>(date),</span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>         <span class="co"># replacing the site abbreviations with full site names</span></span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>         <span class="at">site =</span> <span class="fu">case_when</span>(</span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>           site <span class="sc">==</span> <span class="st">"f"</span> <span class="sc">~</span> <span class="st">"fort bragg"</span>,</span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>           site <span class="sc">==</span> <span class="st">"g"</span> <span class="sc">~</span> <span class="st">"gaviota"</span></span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>         ),</span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>         <span class="co"># making sure the scales are categories in numerical order</span></span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a>         <span class="at">scale_km =</span> <span class="fu">fct_relevel</span>(<span class="fu">as_factor</span>(scale_km), <span class="st">"10"</span>, <span class="st">"25"</span>, <span class="st">"50"</span>, <span class="st">"100"</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a>  <span class="co"># arranging the whole data frame by date to make it easier to parse</span></span>
+<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(date)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>As a random sample of rows:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">slice_sample</span>(env_full, <span class="at">n =</span> <span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 5 × 7
+  date       site       scale_km sst_c no3_umol_l_1 npp_mg_c_m_2_d_1 chl_mg_m_3
+  &lt;date&gt;     &lt;chr&gt;      &lt;fct&gt;    &lt;dbl&gt;        &lt;dbl&gt;            &lt;dbl&gt;      &lt;dbl&gt;
+1 2007-01-16 gaviota    100       12.8         3.29             811.      1.51 
+2 2018-05-11 fort bragg 10        10.6        15.9             1401.      2.46 
+3 2015-08-24 fort bragg 50        15.4         0                923.      0.865
+4 2017-05-26 gaviota    25        13.2         2.08            2091.      3.44 
+5 2006-05-26 fort bragg 50        12.5         3.77            1329.      1.55 </code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="getting-the-date-window" class="level1">
+<h1>3. getting the date window</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># function to get the date window ----</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>get_window <span class="ot">&lt;-</span> <span class="cf">function</span>(date, size) {</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># choosing a start and end ----</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># start: just whatever the date is minus the size of the window you choose</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  start <span class="ot">&lt;-</span> <span class="fu">as_date</span>(date) <span class="sc">-</span> size</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="co"># end: the date you choose</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  end <span class="ot">&lt;-</span> <span class="fu">as_date</span>(date)</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="co"># filtering the data frame ----</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  <span class="co"># use the full data frame</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>  env_full <span class="sc">%&gt;%</span> </span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># filter the data frame to only include dates that are equal to or after the start and equal to or before the end</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(date <span class="sc">&gt;=</span> start <span class="sc">&amp;</span> date <span class="sc">&lt;=</span> end)</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a><span class="co"># function to get the window summary ----</span></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>window_summary <span class="ot">&lt;-</span> <span class="cf">function</span>(df) {</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>  df <span class="sc">%&gt;%</span> </span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>    <span class="co"># grouping the data frame by site and scale_km</span></span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>    <span class="co"># important! this function assumes the data frame has those two columns named these things</span></span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>    <span class="co"># if not, it might not work!</span></span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(site, scale_km) <span class="sc">%&gt;%</span> </span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>    <span class="co"># summarizing ----</span></span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarize</span>(<span class="at">sst_mean =</span> <span class="fu">mean</span>(sst_c, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>              <span class="at">sst_var =</span> <span class="fu">var</span>(sst_c, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), </span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>              <span class="at">sst_n =</span> <span class="fu">sum</span>(<span class="sc">!</span><span class="fu">is.na</span>(sst_c)),</span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>              </span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>              <span class="at">no3_mean =</span> <span class="fu">mean</span>(no3_umol_l_1, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a>              <span class="at">no3_var =</span> <span class="fu">var</span>(no3_umol_l_1, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a>              <span class="at">no3_n =</span> <span class="fu">sum</span>(<span class="sc">!</span><span class="fu">is.na</span>(no3_umol_l_1)),</span>
+<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a>              </span>
+<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a>              <span class="at">npp_mean =</span> <span class="fu">mean</span>(npp_mg_c_m_2_d_1, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a>              <span class="at">npp_var =</span> <span class="fu">var</span>(npp_mg_c_m_2_d_1, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a>              <span class="at">npp_n =</span> <span class="fu">sum</span>(<span class="sc">!</span><span class="fu">is.na</span>(npp_mg_c_m_2_d_1)),</span>
+<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a>              </span>
+<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a>              <span class="at">chl_mean =</span> <span class="fu">mean</span>(chl_mg_m_3, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a>              <span class="at">chl_var =</span> <span class="fu">var</span>(chl_mg_m_3, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb10-40"><a href="#cb10-40" aria-hidden="true" tabindex="-1"></a>              <span class="at">chl_n =</span> <span class="fu">sum</span>(<span class="sc">!</span><span class="fu">is.na</span>(chl_mg_m_3))</span>
+<span id="cb10-41"><a href="#cb10-41" aria-hidden="true" tabindex="-1"></a>              </span>
+<span id="cb10-42"><a href="#cb10-42" aria-hidden="true" tabindex="-1"></a>              ) </span>
+<span id="cb10-43"><a href="#cb10-43" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Testing it out. In this example, an urchin was collected on 2019-03-15, and the size of the window you want is 30 days.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>test_df <span class="ot">&lt;-</span> <span class="fu">get_window</span>(<span class="at">date =</span> <span class="st">"2019-03-15"</span>, <span class="at">size =</span> <span class="dv">30</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>And then a look at that:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(test_df, <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 10 × 7
+   date       site       scale_km sst_c no3_umol_l_1 npp_mg_c_m_2_d_1 chl_mg_m_3
+   &lt;date&gt;     &lt;chr&gt;      &lt;fct&gt;    &lt;dbl&gt;        &lt;dbl&gt;            &lt;dbl&gt;      &lt;dbl&gt;
+ 1 2019-02-15 fort bragg 10        12.2        6.01              713.      1.25 
+ 2 2019-02-15 fort bragg 25        12.2        5.68              662.      1.13 
+ 3 2019-02-15 fort bragg 50        12.2        5.61              606.      0.989
+ 4 2019-02-15 fort bragg 100       12.2        5.88              534.      0.861
+ 5 2019-02-15 gaviota    10        14.0        0.672            1042.      1.58 
+ 6 2019-02-15 gaviota    25        14.0        0.682            1042.      1.79 
+ 7 2019-02-15 gaviota    50        13.9        0.804             951.      1.53 
+ 8 2019-02-15 gaviota    100       13.9        0.853             804.      1.13 
+ 9 2019-02-20 fort bragg 10        11.8        7.99              709.      1.11 
+10 2019-02-20 fort bragg 25        11.8        7.99              669.      1.01 </code></pre>
+</div>
+</div>
+<p>Getting the summary of environmental conditions within that window:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>test_summary <span class="ot">&lt;-</span> <span class="fu">window_summary</span>(test_df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`summarise()` has grouped output by 'site'. You can override using the
+`.groups` argument.</code></pre>
+</div>
+</div>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

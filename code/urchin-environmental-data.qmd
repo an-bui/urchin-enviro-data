@@ -1,0 +1,240 @@
+---
+title: "Urchin environmental data cleaning"
+format: html
+toc: true
+toc-location: left
+toc-title: "Contents"
+---
+
+# General info
+
+This document is set up into 3 different sections: 1. set up, 2. cleaning, and 3. getting the date window. At each step of the way, there's some intermediate data frame created to get to the final product. I'm mostly making the assumption that you do want to see these intermediate steps (I often do, just to get a gut check that what I'm doing gives me what I expect), but there are definitely ways to streamline this if you don't want to use that structure.  
+
+In any case, this document takes the `ZOE_RS_Data.xlsx` in its entirety and runs through the cleaning/wrangling steps before getting to the last part, where you choose the time window and can either get a data frame with all the environmental conditions for all the dates within the window (not summarized, just raw) for both sites at all 4 spatial scales, or you can continue on and summarize all those values by site by scale to get mean and variance for each.
+
+# 1. Set up
+
+## a. packages
+
+```{r libraries}
+#| message: false
+#| warning: false
+
+library(tidyverse) # general cleaning and use
+library(here) # helps organize files
+library(readxl) # reads in excel files
+library(janitor) # helps clean up data frames
+```
+
+## b. data
+
+```{r reading-data}
+sst <- read_xlsx(here("data", "ZOE_RS_Data.xlsx"), sheet = "SST", na = c("NA", "NaN"))
+no3 <- read_xlsx(here("data", "ZOE_RS_Data.xlsx"), sheet = "NO3", na = c("NA", "NaN"))
+npp <- read_xlsx(here("data", "ZOE_RS_Data.xlsx"), sheet = "NPP", na = c("NA", "NaN"))
+chl <- read_xlsx(here("data", "ZOE_RS_Data.xlsx"), sheet = "CHL", na = c("NA", "NaN"))
+```
+
+# 2. cleaning
+
+## a. cleaning each environmental data set
+
+### i. cleaning function
+
+Cleaning steps are going to repeat for `sst`, `no3`, `npp`, and `chl` data frames, so writing a function here to make it a little faster:
+
+```{r}
+cleaning_fxn <- function(type) {
+  
+  # function set up part 1: choose the right data frame based on the "type" ----
+  df <- if(type == "sst") {
+    sst
+  } else if(type == "no3") {
+    no3
+  } else if(type == "npp") {
+    npp
+  } else if(type == "chl") {
+    chl
+  } else {
+      warning("Did you provide a data type? Double check!")
+      return(NA)
+  }
+  
+  # function set up part 2: create a label for the column of values based on the data type ----
+  label <- if(type == "sst") {
+    "sst_c"
+  } else if(type == "no3") {
+    "no3_umol_l_1"
+  } else if(type == "npp") {
+    "npp_mg_c_m_2_d_1"
+  } else if(type == "chl") {
+    "chl_mg_m_3"
+  } else {
+      warning("Did you provide a data type? Double check!")
+      return(NA)
+  }
+
+  # what the actual function does ----
+  # takes the data frame name as an argument and then
+  df %>% 
+    # makes column names easier to parse using function from {janitor} and then
+    clean_names() %>% 
+    # removes the "units" column because the units are going into the value column label and then
+    select(!(contains("units"))) %>% 
+    # puts the data frame into "tidy" format, where each row is an observation and then
+    pivot_longer(cols = f_10:g_100, names_to = "name", values_to = label) %>% 
+    # separates the column with site_scale into two separate columns and then
+    separate_wider_delim(cols = name, delim = "_", names = c("site", "scale_km")) %>% 
+    # makes an "observation ID": some information that allows you to uniquely identify each observation
+    unite("obs_ID", year, month_s, day_s, site, scale_km, remove = FALSE)
+}
+```
+
+### ii. using the function
+
+Put into practice:
+
+```{r cleaning-data-frames}
+sst_clean <- cleaning_fxn("sst")
+no3_clean <- cleaning_fxn("no3")
+npp_clean <- cleaning_fxn("npp")
+chl_clean <- cleaning_fxn("chl")
+```
+
+And looking at the first 5 rows of the `sst_clean` data frame just to double check it all worked:
+
+```{r post-clean-look}
+head(sst_clean, 5)
+```
+
+## b. combining data frames
+
+:::{.callout-note}
+There is an odd date in SST and NO3: 2016-03-21 has multiple values?
+:::
+
+The rationale for combining each data frame for `sst`, `chl`, `no3`, and `npp` into one is that you can then find the window for each urchin once, as opposed to doing it 4 different times for the 4 conditions. Also, then you can look at a single date and say what the environmental conditions were for that date, figure out if any measurements are missing for that date, etc. Doing that below:
+
+```{r full-env-data-frame}
+# create a data frame called env_full starting with sst_clean
+env_full <- sst_clean %>% 
+  # select only columns of interest
+  select(obs_ID, sst_c) %>% 
+  
+  # joining ----
+  # selecting columns of interest from no3_clean (only observation ID and the value)
+  # joining with sst_clean
+  full_join(select(no3_clean, obs_ID, no3_umol_l_1), 
+            # setting this relationship because of the multiple values thing
+            relationship = "many-to-many", 
+            # joining both data frames by the obs_ID column
+            by = "obs_ID") %>% 
+  # selecting columns of interest from npp_clean and joining
+  full_join(select(npp_clean, obs_ID, npp_mg_c_m_2_d_1), 
+            by = "obs_ID") %>% 
+  # selecting columns of interest from chl_clean and joining
+  full_join(select(chl_clean, obs_ID, chl_mg_m_3),
+            by = "obs_ID") %>% 
+  
+  # getting the metadata ----
+  # separating the obs_ID column into the meaningful components
+  separate_wider_delim(cols = "obs_ID", delim = "_", 
+                       names = c("year", "month_s", "day_s", "site", "scale_km")) %>% 
+  # creating a column for date by combining year, month_s, day_s
+  unite("date", year, month_s, day_s, sep = "-") %>% 
+  
+  # general cleaning ----
+  # making sure the date is actually read as a date
+  mutate(date = as_date(date),
+         # replacing the site abbreviations with full site names
+         site = case_when(
+           site == "f" ~ "fort bragg",
+           site == "g" ~ "gaviota"
+         ),
+         # making sure the scales are categories in numerical order
+         scale_km = fct_relevel(as_factor(scale_km), "10", "25", "50", "100")) %>% 
+  # arranging the whole data frame by date to make it easier to parse
+  arrange(date)
+
+```
+
+As a random sample of rows:
+
+```{r full-env-look}
+slice_sample(env_full, n = 5)
+```
+
+
+# 3. getting the date window
+
+```{r getting-date-window}
+# function to get the date window ----
+get_window <- function(date, size) {
+  # choosing a start and end ----
+  # start: just whatever the date is minus the size of the window you choose
+  start <- as_date(date) - size
+  # end: the date you choose
+  end <- as_date(date)
+  
+  # filtering the data frame ----
+  # use the full data frame
+  env_full %>% 
+    # filter the data frame to only include dates that are equal to or after the start and equal to or before the end
+    filter(date >= start & date <= end)
+}
+
+# function to get the window summary ----
+window_summary <- function(df) {
+  
+  df %>% 
+    # grouping the data frame by site and scale_km
+    # important! this function assumes the data frame has those two columns named these things
+    # if not, it might not work!
+    group_by(site, scale_km) %>% 
+    
+    # summarizing ----
+    summarize(sst_mean = mean(sst_c, na.rm = TRUE),
+              sst_var = var(sst_c, na.rm = TRUE), 
+              sst_n = sum(!is.na(sst_c)),
+              
+              no3_mean = mean(no3_umol_l_1, na.rm = TRUE),
+              no3_var = var(no3_umol_l_1, na.rm = TRUE),
+              no3_n = sum(!is.na(no3_umol_l_1)),
+              
+              npp_mean = mean(npp_mg_c_m_2_d_1, na.rm = TRUE),
+              npp_var = var(npp_mg_c_m_2_d_1, na.rm = TRUE),
+              npp_n = sum(!is.na(npp_mg_c_m_2_d_1)),
+              
+              chl_mean = mean(chl_mg_m_3, na.rm = TRUE),
+              chl_var = var(chl_mg_m_3, na.rm = TRUE),
+              chl_n = sum(!is.na(chl_mg_m_3))
+              
+              ) 
+}
+```
+
+Testing it out. In this example, an urchin was collected on 2019-03-15, and the size of the window you want is 30 days.
+
+```{r}
+test_df <- get_window(date = "2019-03-15", size = 30)
+```
+
+And then a look at that:
+
+```{r}
+head(test_df, 10)
+```
+
+
+Getting the summary of environmental conditions within that window: 
+
+```{r}
+test_summary <- window_summary(test_df)
+```
+
+
+
+
+
+
+
