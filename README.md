@@ -8,7 +8,6 @@
 ├── code
 │   ├── Urchin_CUTI_BEUTI_data_window.R
 │   ├── urchin-environmental-data.R
-│   ├── urchin-environmental-data.Rmd
 │   ├── urchin-environmental-data.html
 │   ├── urchin-environmental-data.qmd
 │   └── urchin-environmental-data_files       # not important, just some html rendering files
