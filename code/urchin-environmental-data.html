@@ -93,14 +93,24 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#ii.-using-the-function" id="toc-ii.-using-the-function" class="nav-link" data-scroll-target="#ii.-using-the-function">ii. using the function</a></li>
   </ul></li>
   <li><a href="#b.-combining-data-frames" id="toc-b.-combining-data-frames" class="nav-link" data-scroll-target="#b.-combining-data-frames">b. combining data frames</a></li>
+  <li><a href="#c.-cleaning-urchin-data-set" id="toc-c.-cleaning-urchin-data-set" class="nav-link" data-scroll-target="#c.-cleaning-urchin-data-set">c.&nbsp;cleaning urchin data set</a></li>
   </ul></li>
   <li><a href="#getting-the-date-window" id="toc-getting-the-date-window" class="nav-link" data-scroll-target="#getting-the-date-window">3. getting the date window</a></li>
+  <li><a href="#getting-urchin-data" id="toc-getting-urchin-data" class="nav-link" data-scroll-target="#getting-urchin-data">4. getting urchin data</a>
+  <ul class="collapse">
+  <li><a href="#a.-general-explanation" id="toc-a.-general-explanation" class="nav-link" data-scroll-target="#a.-general-explanation">a. general explanation</a></li>
+  <li><a href="#b.-list-columns-in-practice" id="toc-b.-list-columns-in-practice" class="nav-link" data-scroll-target="#b.-list-columns-in-practice">b. list-columns in practice</a>
+  <ul class="collapse">
+  <li><a href="#i.-map" id="toc-i.-map" class="nav-link" data-scroll-target="#i.-map">i. <code>map()</code></a></li>
+  </ul></li>
+  <li><a href="#c.-trying-it-out" id="toc-c.-trying-it-out" class="nav-link" data-scroll-target="#c.-trying-it-out">c.&nbsp;trying it out</a></li>
+  </ul></li>
   </ul>
 </nav>
 </div>
 <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
 </div>
-<main class="content" id="quarto-document-content">
+<main class="content page-columns page-full" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
@@ -142,7 +152,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>sst <span class="ot">&lt;-</span> <span class="fu">read_xlsx</span>(<span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"ZOE_RS_Data.xlsx"</span>), <span class="at">sheet =</span> <span class="st">"SST"</span>, <span class="at">na =</span> <span class="fu">c</span>(<span class="st">"NA"</span>, <span class="st">"NaN"</span>))</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>no3 <span class="ot">&lt;-</span> <span class="fu">read_xlsx</span>(<span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"ZOE_RS_Data.xlsx"</span>), <span class="at">sheet =</span> <span class="st">"NO3"</span>, <span class="at">na =</span> <span class="fu">c</span>(<span class="st">"NA"</span>, <span class="st">"NaN"</span>))</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>npp <span class="ot">&lt;-</span> <span class="fu">read_xlsx</span>(<span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"ZOE_RS_Data.xlsx"</span>), <span class="at">sheet =</span> <span class="st">"NPP"</span>, <span class="at">na =</span> <span class="fu">c</span>(<span class="st">"NA"</span>, <span class="st">"NaN"</span>))</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>chl <span class="ot">&lt;-</span> <span class="fu">read_xlsx</span>(<span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"ZOE_RS_Data.xlsx"</span>), <span class="at">sheet =</span> <span class="st">"CHL"</span>, <span class="at">na =</span> <span class="fu">c</span>(<span class="st">"NA"</span>, <span class="st">"NaN"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>chl <span class="ot">&lt;-</span> <span class="fu">read_xlsx</span>(<span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"ZOE_RS_Data.xlsx"</span>), <span class="at">sheet =</span> <span class="st">"CHL"</span>, <span class="at">na =</span> <span class="fu">c</span>(<span class="st">"NA"</span>, <span class="st">"NaN"</span>))</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>urchins <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"allUrchins_working_saved on 20230302.csv"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 </section>
@@ -274,8 +285,8 @@ Note
 <span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">date =</span> <span class="fu">as_date</span>(date),</span>
 <span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>         <span class="co"># replacing the site abbreviations with full site names</span></span>
 <span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>         <span class="at">site =</span> <span class="fu">case_when</span>(</span>
-<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>           site <span class="sc">==</span> <span class="st">"f"</span> <span class="sc">~</span> <span class="st">"fort bragg"</span>,</span>
-<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>           site <span class="sc">==</span> <span class="st">"g"</span> <span class="sc">~</span> <span class="st">"gaviota"</span></span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>           site <span class="sc">==</span> <span class="st">"f"</span> <span class="sc">~</span> <span class="st">"fbpc"</span>,</span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>           site <span class="sc">==</span> <span class="st">"g"</span> <span class="sc">~</span> <span class="st">"gavi"</span></span>
 <span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>         ),</span>
 <span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>         <span class="co"># making sure the scales are categories in numerical order</span></span>
 <span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a>         <span class="at">scale_km =</span> <span class="fu">fct_relevel</span>(<span class="fu">as_factor</span>(scale_km), <span class="st">"10"</span>, <span class="st">"25"</span>, <span class="st">"50"</span>, <span class="st">"100"</span>)) <span class="sc">%&gt;%</span> </span>
@@ -287,111 +298,209 @@ Note
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">slice_sample</span>(env_full, <span class="at">n =</span> <span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 5 × 7
-  date       site       scale_km sst_c no3_umol_l_1 npp_mg_c_m_2_d_1 chl_mg_m_3
-  &lt;date&gt;     &lt;chr&gt;      &lt;fct&gt;    &lt;dbl&gt;        &lt;dbl&gt;            &lt;dbl&gt;      &lt;dbl&gt;
-1 1998-03-07 gaviota    100       14.4       0.418              943.       1.24
-2 2017-10-08 gaviota    50        17.7       0.0871            1603.       1.64
-3 2010-09-13 gaviota    50        14.6       1.94              1977.       3.08
-4 1981-12-17 fort bragg 50        12.9       1.32                NA       NA   
-5 1991-04-11 fort bragg 50        10.0      19.9                 NA       NA   </code></pre>
+  date       site  scale_km sst_c no3_umol_l_1 npp_mg_c_m_2_d_1 chl_mg_m_3
+  &lt;date&gt;     &lt;chr&gt; &lt;fct&gt;    &lt;dbl&gt;        &lt;dbl&gt;            &lt;dbl&gt;      &lt;dbl&gt;
+1 2010-01-01 fbpc  100       11.7         9.24             483.      0.963
+2 2016-01-31 fbpc  25        12.1         6.34             551.      0.861
+3 1995-07-10 gavi  25        14.9         1.47              NA      NA    
+4 2004-03-01 fbpc  50        11.2        12.3              639.      1.13 
+5 1995-05-31 gavi  25        13.1         2.41              NA      NA    </code></pre>
 </div>
+</div>
+</section>
+<section id="c.-cleaning-urchin-data-set" class="level2">
+<h2 class="anchored" data-anchor-id="c.-cleaning-urchin-data-set">c.&nbsp;cleaning urchin data set</h2>
+<p>Just trying to get the most relevant info here for urchin environmental data: <code>Inv_ID</code>, <code>date_col</code>, and <code>site</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>urchin_clean <span class="ot">&lt;-</span> urchins <span class="sc">%&gt;%</span> </span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># selecting columns of interest</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># select(Inv_ID, date_col, site) %&gt;% </span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># making sure the date column is parsed as a date and is in the right format</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">date_col =</span> <span class="fu">mdy</span>(date_col))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 </section>
 <section id="getting-the-date-window" class="level1">
 <h1>3. getting the date window</h1>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># function to get the date window ----</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>get_window <span class="ot">&lt;-</span> <span class="cf">function</span>(date, size) {</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># choosing a start and end ----</span></span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># start: just whatever the date is minus the size of the window you choose</span></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  start <span class="ot">&lt;-</span> <span class="fu">as_date</span>(date) <span class="sc">-</span> size</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="co"># end: the date you choose</span></span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  end <span class="ot">&lt;-</span> <span class="fu">as_date</span>(date)</span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="co"># filtering the data frame ----</span></span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  <span class="co"># use the full data frame</span></span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>  env_full <span class="sc">%&gt;%</span> </span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># filter the data frame to only include dates that are equal to or after the start and equal to or before the end</span></span>
-<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(date <span class="sc">&gt;=</span> start <span class="sc">&amp;</span> date <span class="sc">&lt;=</span> end)</span>
-<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a><span class="co"># function to get the window summary ----</span></span>
-<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>window_summary <span class="ot">&lt;-</span> <span class="cf">function</span>(df) {</span>
-<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>  df <span class="sc">%&gt;%</span> </span>
-<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>    <span class="co"># grouping the data frame by site and scale_km</span></span>
-<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>    <span class="co"># important! this function assumes the data frame has those two columns named these things</span></span>
-<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>    <span class="co"># if not, it might not work!</span></span>
-<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(site, scale_km) <span class="sc">%&gt;%</span> </span>
-<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>    <span class="co"># summarizing ----</span></span>
-<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarize</span>(<span class="at">sst_mean =</span> <span class="fu">mean</span>(sst_c, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>              <span class="at">sst_var =</span> <span class="fu">var</span>(sst_c, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), </span>
-<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>              <span class="at">sst_n =</span> <span class="fu">sum</span>(<span class="sc">!</span><span class="fu">is.na</span>(sst_c)),</span>
-<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>              </span>
-<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>              <span class="at">no3_mean =</span> <span class="fu">mean</span>(no3_umol_l_1, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a>              <span class="at">no3_var =</span> <span class="fu">var</span>(no3_umol_l_1, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a>              <span class="at">no3_n =</span> <span class="fu">sum</span>(<span class="sc">!</span><span class="fu">is.na</span>(no3_umol_l_1)),</span>
-<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a>              </span>
-<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a>              <span class="at">npp_mean =</span> <span class="fu">mean</span>(npp_mg_c_m_2_d_1, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a>              <span class="at">npp_var =</span> <span class="fu">var</span>(npp_mg_c_m_2_d_1, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a>              <span class="at">npp_n =</span> <span class="fu">sum</span>(<span class="sc">!</span><span class="fu">is.na</span>(npp_mg_c_m_2_d_1)),</span>
-<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a>              </span>
-<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a>              <span class="at">chl_mean =</span> <span class="fu">mean</span>(chl_mg_m_3, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a>              <span class="at">chl_var =</span> <span class="fu">var</span>(chl_mg_m_3, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb10-40"><a href="#cb10-40" aria-hidden="true" tabindex="-1"></a>              <span class="at">chl_n =</span> <span class="fu">sum</span>(<span class="sc">!</span><span class="fu">is.na</span>(chl_mg_m_3))</span>
-<span id="cb10-41"><a href="#cb10-41" aria-hidden="true" tabindex="-1"></a>              </span>
-<span id="cb10-42"><a href="#cb10-42" aria-hidden="true" tabindex="-1"></a>              ) </span>
-<span id="cb10-43"><a href="#cb10-43" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># function to get the date window ----</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>get_window <span class="ot">&lt;-</span> <span class="cf">function</span>(date, size) {</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># choosing a start and end ----</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># start: just whatever the date is minus the size of the window you choose</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  start <span class="ot">&lt;-</span> <span class="fu">as_date</span>(date) <span class="sc">-</span> size</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="co"># end: the date you choose</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  end <span class="ot">&lt;-</span> <span class="fu">as_date</span>(date)</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>  <span class="co"># filtering the data frame ----</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>  <span class="co"># use the full data frame</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>  env_full <span class="sc">%&gt;%</span> </span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># filter the data frame to only include dates that are equal to or after the start and equal to or before the end</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(date <span class="sc">&gt;=</span> start <span class="sc">&amp;</span> date <span class="sc">&lt;=</span> end) <span class="sc">%&gt;%</span> </span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>    <span class="co"># label the window size</span></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">window_size =</span> size)</span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a><span class="co"># function to get the window summary ----</span></span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>window_summary <span class="ot">&lt;-</span> <span class="cf">function</span>(df) {</span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>  df <span class="sc">%&gt;%</span> </span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>    <span class="co"># grouping the data frame by site and scale_km</span></span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>    <span class="co"># important! this function assumes the data frame has those two columns named these things</span></span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a>    <span class="co"># if not, it might not work!</span></span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(site, scale_km) <span class="sc">%&gt;%</span> </span>
+<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a>    <span class="co"># summarizing ----</span></span>
+<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarize</span>(<span class="at">sst_mean =</span> <span class="fu">mean</span>(sst_c, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a>              <span class="at">sst_var =</span> <span class="fu">var</span>(sst_c, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), </span>
+<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a>              <span class="at">sst_n =</span> <span class="fu">sum</span>(<span class="sc">!</span><span class="fu">is.na</span>(sst_c)),</span>
+<span id="cb11-31"><a href="#cb11-31" aria-hidden="true" tabindex="-1"></a>              </span>
+<span id="cb11-32"><a href="#cb11-32" aria-hidden="true" tabindex="-1"></a>              <span class="at">no3_mean =</span> <span class="fu">mean</span>(no3_umol_l_1, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb11-33"><a href="#cb11-33" aria-hidden="true" tabindex="-1"></a>              <span class="at">no3_var =</span> <span class="fu">var</span>(no3_umol_l_1, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb11-34"><a href="#cb11-34" aria-hidden="true" tabindex="-1"></a>              <span class="at">no3_n =</span> <span class="fu">sum</span>(<span class="sc">!</span><span class="fu">is.na</span>(no3_umol_l_1)),</span>
+<span id="cb11-35"><a href="#cb11-35" aria-hidden="true" tabindex="-1"></a>              </span>
+<span id="cb11-36"><a href="#cb11-36" aria-hidden="true" tabindex="-1"></a>              <span class="at">npp_mean =</span> <span class="fu">mean</span>(npp_mg_c_m_2_d_1, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb11-37"><a href="#cb11-37" aria-hidden="true" tabindex="-1"></a>              <span class="at">npp_var =</span> <span class="fu">var</span>(npp_mg_c_m_2_d_1, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb11-38"><a href="#cb11-38" aria-hidden="true" tabindex="-1"></a>              <span class="at">npp_n =</span> <span class="fu">sum</span>(<span class="sc">!</span><span class="fu">is.na</span>(npp_mg_c_m_2_d_1)),</span>
+<span id="cb11-39"><a href="#cb11-39" aria-hidden="true" tabindex="-1"></a>              </span>
+<span id="cb11-40"><a href="#cb11-40" aria-hidden="true" tabindex="-1"></a>              <span class="at">chl_mean =</span> <span class="fu">mean</span>(chl_mg_m_3, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb11-41"><a href="#cb11-41" aria-hidden="true" tabindex="-1"></a>              <span class="at">chl_var =</span> <span class="fu">var</span>(chl_mg_m_3, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb11-42"><a href="#cb11-42" aria-hidden="true" tabindex="-1"></a>              <span class="at">chl_n =</span> <span class="fu">sum</span>(<span class="sc">!</span><span class="fu">is.na</span>(chl_mg_m_3)),</span>
+<span id="cb11-43"><a href="#cb11-43" aria-hidden="true" tabindex="-1"></a>              </span>
+<span id="cb11-44"><a href="#cb11-44" aria-hidden="true" tabindex="-1"></a>              <span class="at">.groups =</span> <span class="st">"keep"</span></span>
+<span id="cb11-45"><a href="#cb11-45" aria-hidden="true" tabindex="-1"></a>              </span>
+<span id="cb11-46"><a href="#cb11-46" aria-hidden="true" tabindex="-1"></a>              ) </span>
+<span id="cb11-47"><a href="#cb11-47" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Testing it out. In this example, an urchin was collected on 2019-03-15, and the size of the window you want is 30 days.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>test_df <span class="ot">&lt;-</span> <span class="fu">get_window</span>(<span class="at">date =</span> <span class="st">"2019-03-15"</span>, <span class="at">size =</span> <span class="dv">30</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>test_df <span class="ot">&lt;-</span> <span class="fu">get_window</span>(<span class="at">date =</span> <span class="st">"2019-03-15"</span>, <span class="at">size =</span> <span class="dv">30</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>And then a look at that:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(test_df, <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(test_df, <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 10 × 7
-   date       site       scale_km sst_c no3_umol_l_1 npp_mg_c_m_2_d_1 chl_mg_m_3
-   &lt;date&gt;     &lt;chr&gt;      &lt;fct&gt;    &lt;dbl&gt;        &lt;dbl&gt;            &lt;dbl&gt;      &lt;dbl&gt;
- 1 2019-02-15 fort bragg 10        12.2        6.01              713.      1.25 
- 2 2019-02-15 fort bragg 25        12.2        5.68              662.      1.13 
- 3 2019-02-15 fort bragg 50        12.2        5.61              606.      0.989
- 4 2019-02-15 fort bragg 100       12.2        5.88              534.      0.861
- 5 2019-02-15 gaviota    10        14.0        0.672            1042.      1.58 
- 6 2019-02-15 gaviota    25        14.0        0.682            1042.      1.79 
- 7 2019-02-15 gaviota    50        13.9        0.804             951.      1.53 
- 8 2019-02-15 gaviota    100       13.9        0.853             804.      1.13 
- 9 2019-02-20 fort bragg 10        11.8        7.99              709.      1.11 
-10 2019-02-20 fort bragg 25        11.8        7.99              669.      1.01 </code></pre>
+<pre><code># A tibble: 10 × 8
+   date       site  scale_km sst_c no3_umol_l_1 npp_mg_c_m_2_d_1 chl_mg_m_3
+   &lt;date&gt;     &lt;chr&gt; &lt;fct&gt;    &lt;dbl&gt;        &lt;dbl&gt;            &lt;dbl&gt;      &lt;dbl&gt;
+ 1 2019-02-15 fbpc  10        12.2        6.01              713.      1.25 
+ 2 2019-02-15 fbpc  25        12.2        5.68              662.      1.13 
+ 3 2019-02-15 fbpc  50        12.2        5.61              606.      0.989
+ 4 2019-02-15 fbpc  100       12.2        5.88              534.      0.861
+ 5 2019-02-15 gavi  10        14.0        0.672            1042.      1.58 
+ 6 2019-02-15 gavi  25        14.0        0.682            1042.      1.79 
+ 7 2019-02-15 gavi  50        13.9        0.804             951.      1.53 
+ 8 2019-02-15 gavi  100       13.9        0.853             804.      1.13 
+ 9 2019-02-20 fbpc  10        11.8        7.99              709.      1.11 
+10 2019-02-20 fbpc  25        11.8        7.99              669.      1.01 
+# ℹ 1 more variable: window_size &lt;dbl&gt;</code></pre>
 </div>
 </div>
 <p>Getting the summary of environmental conditions within that window:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>test_summary <span class="ot">&lt;-</span> <span class="fu">window_summary</span>(test_df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>`summarise()` has grouped output by 'site'. You can override using the
-`.groups` argument.</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>test_summary</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>test_summary <span class="ot">&lt;-</span> <span class="fu">window_summary</span>(test_df)</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>test_summary</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 8 × 14
-# Groups:   site [2]
-  site   scale_km sst_mean sst_var sst_n no3_mean no3_var no3_n npp_mean npp_var
-  &lt;chr&gt;  &lt;fct&gt;       &lt;dbl&gt;   &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt;   &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt;   &lt;dbl&gt;
-1 fort … 10           11.6  0.124      6     9.48   5.39      6     736.  5.98e3
-2 fort … 25           11.6  0.126      6     9.34   5.50      6     727.  6.58e3
-3 fort … 50           11.6  0.125      6     9.37   5.40      6     674.  7.68e3
-4 fort … 100          11.6  0.114      6     9.45   4.95      6     643.  1.56e4
-5 gavio… 10           13.4  0.171      6     1.86   0.702     6    2128.  2.48e6
-6 gavio… 25           13.4  0.169      6     1.87   0.691     6    1982.  1.59e6
-7 gavio… 50           13.4  0.119      6     1.75   0.522     6    1449.  5.61e5
-8 gavio… 100          13.5  0.0692     6     1.51   0.270     6    1005.  1.22e5
+# Groups:   site, scale_km [8]
+  site  scale_km sst_mean sst_var sst_n no3_mean no3_var no3_n npp_mean  npp_var
+  &lt;chr&gt; &lt;fct&gt;       &lt;dbl&gt;   &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt;   &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt;    &lt;dbl&gt;
+1 fbpc  10           11.6  0.124      6     9.48   5.39      6     736.    5979.
+2 fbpc  25           11.6  0.126      6     9.34   5.50      6     727.    6579.
+3 fbpc  50           11.6  0.125      6     9.37   5.40      6     674.    7680.
+4 fbpc  100          11.6  0.114      6     9.45   4.95      6     643.   15577.
+5 gavi  10           13.4  0.171      6     1.86   0.702     6    2128. 2479548.
+6 gavi  25           13.4  0.169      6     1.87   0.691     6    1982. 1592730.
+7 gavi  50           13.4  0.119      6     1.75   0.522     6    1449.  560626.
+8 gavi  100          13.5  0.0692     6     1.51   0.270     6    1005.  122405.
 # ℹ 4 more variables: npp_n &lt;int&gt;, chl_mean &lt;dbl&gt;, chl_var &lt;dbl&gt;, chl_n &lt;int&gt;</code></pre>
 </div>
 </div>
+</section>
+<section id="getting-urchin-data" class="level1 page-columns page-full">
+<h1>4. getting urchin data</h1>
+<section id="a.-general-explanation" class="level2 page-columns page-full">
+<h2 class="anchored" data-anchor-id="a.-general-explanation">a. general explanation</h2>
+<p>I’m taking this as an opportunity to introduce list-columns which are a bit abstract to explain but for which I am a data science evangelist. This is in large part because I am not good at writing functions lol so I have to do this.</p>
+<p>The way I see your data, you have a data frame (<code>urchins</code>) with all your urchin <code>Inv_ID</code>s, the date they were collected, and the site. These are important for figuring out which site and/or which windows to use from the environmental data frame. However, each urchin has its own site and collection date, meaning it’ll have its own environmental data frame, and therefore its own environmental data summary (e.g.&nbsp;mean SST over the course of 30 days).</p>
+<p>You could get the window and calculate summary stats for each individual urchin, either by copy-pasting code (RIP no) or writing a <code>for</code> loop (a pain in the ass). Alternatively, you could use list-columns, which allow you to circumvent the <code>for</code> loop technique to iterate functions over a whole column without having to mess with the confusing structure of a loop. List-columns essentially create data frames within data frames so that you can use the same <code>{tidyverse}</code> syntax to apply functions to multiple data frames.</p>
+<div class="page-columns page-full"><p></p><div class="no-row-height column-margin column-container"><span class="">Sidebar: IMO <code>for</code> loops are useful if the output of one iteration of the loop dictates the next. If not, there are simpler solutions (like a nested column structure)</span></div></div>
+<p>The help page for <code>nest()</code> explains this pretty well, I think!</p>
+</section>
+<section id="b.-list-columns-in-practice" class="level2">
+<h2 class="anchored" data-anchor-id="b.-list-columns-in-practice">b. list-columns in practice</h2>
+<p>This is best seen in the code when you’re running it on your own computer. What we’ll do is:<br>
+1. take a data frame<br>
+2. create list-columns (i.e.&nbsp;data frames within a data frame) using <code>nest()</code> from the <code>{tidyr}</code> package<br>
+3. apply functions to the resulting data frames using <code>dplyr::mutate()</code> and <code>purrr::map()</code>. You’ll create a new column using <code>mutate()</code> (essentially creating a new column of data frames) and <code>map()</code> to manipulate data frames.</p>
+<p>I <em>highly</em> recommend running this line by line and seeing how the data frame changes with each piped function!! If you use <code>View()</code> on the data frame, you’ll see each of these data frames pop up in the columns. If you click on them, you’ll see everything in the data frame.</p>
+<section id="i.-map" class="level3">
+<h3 class="anchored" data-anchor-id="i.-map">i. <code>map()</code></h3>
+<p>The syntax for <code>map()</code> is a little confusing but it basically takes the form:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">map</span>(data frame, <span class="sc">~</span> <span class="cf">function</span>(.x, arguments using data frame columns))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The <code>.x</code> refers to the data frame that you name as the first argument in <code>map()</code>. In the context of list-columns, you’re basically telling R: 1. use the function <code>map()</code><br>
+2. look specifically at this data frame<br>
+3. do this function on the data frame that you already called up (<code>.x</code>)</p>
+<p>Sorry this is a bad explanation!!! But I promise that if you look at the data frame(s) it will be less esoteric.</p>
+</section>
+</section>
+<section id="c.-trying-it-out" class="level2">
+<h2 class="anchored" data-anchor-id="c.-trying-it-out">c.&nbsp;trying it out</h2>
+<p>In this scenario, you’re trying out different windows (30 or 60 days). You want to see all the observations for that window and also summarize the environmental variables for that window.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>env_summary <span class="ot">&lt;-</span> urchin_clean <span class="sc">%&gt;%</span> </span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># turning this into a nested data frame ----</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nest</span>(<span class="at">data =</span> <span class="fu">everything</span>(), <span class="at">.by =</span> Inv_ID) <span class="sc">%&gt;%</span> </span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>  <span class="co"># getting the 30 day and 60 day windows ----</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">window_30 =</span> <span class="fu">map</span>(data,</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>                         <span class="co"># using the `get_window()` function from up top</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>                         <span class="co"># using `pull()` to get the date out of the `data` data frame as a vector</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>                      <span class="sc">~</span> <span class="fu">get_window</span>(<span class="at">date =</span> <span class="fu">pull</span>(.x, date_col), <span class="at">size =</span> <span class="dv">30</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>                        <span class="co"># filter the data frame to only include observations from the site at which the urchin was collected</span></span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>                        <span class="fu">filter</span>(site <span class="sc">==</span> <span class="fu">pull</span>(.x, site))), </span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>         <span class="co"># doing this all again except for the 60 day window</span></span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>         <span class="at">window_60 =</span> <span class="fu">map</span>(data,</span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>                      <span class="sc">~</span> <span class="fu">get_window</span>(<span class="at">date =</span> <span class="fu">pull</span>(.x, date_col), <span class="at">size =</span> <span class="dv">60</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>                        <span class="fu">filter</span>(site <span class="sc">==</span> <span class="fu">pull</span>(.x, site)))) <span class="sc">%&gt;%</span> </span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>  <span class="co"># calculating the mean and variance for each window ----</span></span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">window_30_summary =</span> <span class="fu">map</span>(window_30,</span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a>                                 <span class="sc">~</span> <span class="fu">window_summary</span>(.x)),</span>
+<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a>         <span class="at">window_60_summary =</span> <span class="fu">map</span>(window_60,</span>
+<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a>                                 <span class="sc">~</span> <span class="fu">window_summary</span>(.x))</span>
+<span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a>         )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Hypothetical scenario: after looking at all the windows/making a decision, you decide to maybe go with the 30 day window at the 10km scale. You can use <code>unnest()</code> to expand the data frame, then continue manipulating it like any other data frame.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>env_30day_10km <span class="ot">&lt;-</span> env_summary <span class="sc">%&gt;%</span> </span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># select only the individual ID and the 30 day window summary</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(Inv_ID, window_30_summary) <span class="sc">%&gt;%</span> </span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># expand the summary data frames</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest</span>(<span class="at">cols =</span> <span class="fu">c</span>(window_30_summary)) <span class="sc">%&gt;%</span> </span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>  <span class="co"># filter data frame to only include 10km scale</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(scale_km <span class="sc">==</span> <span class="dv">10</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>  <span class="co"># rename the environmental columns to include the scale</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename_with</span>(<span class="sc">~</span><span class="fu">paste0</span>(., <span class="st">"_10km"</span>), sst_mean<span class="sc">:</span>chl_n) <span class="sc">%&gt;%</span> </span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>  <span class="co"># remove the scale column (now redundant because the column names have the scale in them)</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span><span class="fu">c</span>(scale_km, site)) <span class="sc">%&gt;%</span> </span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># join with the cleaned urchin data set so that each observation now has environmental data attached</span></span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(urchin_clean, ., <span class="at">by =</span> <span class="st">"Inv_ID"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Then just to test this out, going to plot the date an urchin was collected with the mean and variance of SST for the 30 day window at 10km.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> env_30day_10km, <span class="fu">aes</span>(<span class="at">x =</span> date_col, <span class="at">y =</span> sst_mean_10km)) <span class="sc">+</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_linerange</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> sst_mean_10km <span class="sc">-</span> sst_var_10km, <span class="at">ymax =</span> sst_mean_10km <span class="sc">+</span> sst_var_10km)) <span class="sc">+</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>site)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="urchin-environmental-data_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
 </section>
 
 </main>

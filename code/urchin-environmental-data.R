@@ -18,7 +18,7 @@ sst <- read_xlsx(here("data", "ZOE_RS_Data.xlsx"), sheet = "SST", na = c("NA", "
 no3 <- read_xlsx(here("data", "ZOE_RS_Data.xlsx"), sheet = "NO3", na = c("NA", "NaN"))
 npp <- read_xlsx(here("data", "ZOE_RS_Data.xlsx"), sheet = "NPP", na = c("NA", "NaN"))
 chl <- read_xlsx(here("data", "ZOE_RS_Data.xlsx"), sheet = "CHL", na = c("NA", "NaN"))
-
+urchins <- read_csv(here("data", "allUrchins_working_saved on 20230302.csv"))
 
 # 2. cleaning -------------------------------------------------------------
 
@@ -115,8 +115,8 @@ separate_wider_delim(cols = "obs_ID", delim = "_",
 mutate(date = as_date(date),
        # replacing the site abbreviations with full site names
        site = case_when(
-         site == "f" ~ "fort bragg",
-         site == "g" ~ "gaviota"
+         site == "f" ~ "fbpc",
+         site == "g" ~ "gavi"
        ),
        # making sure the scales are categories in numerical order
        scale_km = fct_relevel(as_factor(scale_km), "10", "25", "50", "100")) %>% 
@@ -166,7 +166,9 @@ window_summary <- function(df) {
             
             chl_mean = mean(chl_mg_m_3, na.rm = TRUE),
             chl_var = var(chl_mg_m_3, na.rm = TRUE),
-            chl_n = sum(!is.na(chl_mg_m_3))
+            chl_n = sum(!is.na(chl_mg_m_3)),
+            
+            .groups = "keep"
             
   ) 
 }
@@ -175,4 +177,50 @@ get_window(date = "2019-03-15", size = 30) %>%
   window_summary()
 
 
+# 4. getting urchin data --------------------------------------------------
+
+env_summary <- urchin_clean %>% 
+  
+  # turning this into a nested data frame ----
+  nest(data = everything(), .by = Inv_ID) %>% 
+  
+  # getting the 30 day and 60 day windows ----
+  mutate(window_30 = map(data,
+                       # using the `get_window()` function from up top
+                       # using `pull()` to get the date out of the `data` data frame as a vector
+                       ~ get_window(date = pull(.x, date_col), size = 30) %>% 
+                         # filter the data frame to only include observations from the site at which the urchin was collected
+                         filter(site == pull(.x, site))), 
+       # doing this all again except for the 60 day window
+         window_60 = map(data,
+                       ~ get_window(date = pull(.x, date_col), size = 60) %>% 
+                         filter(site == pull(.x, site)))) %>% 
+  
+  # calculating the mean and variance for each window ----
+  mutate(window_30_summary = map(window_30,
+                               ~ window_summary(.x)),
+         window_60_summary = map(window_60,
+                               ~ window_summary(.x))
+         )
+
+# example use: getting windows for 30 days at 10km spatial scale
+env_30day_10km <- env_summary %>% 
+  # select only the individual ID and the 30 day window summary
+  select(Inv_ID, window_30_summary) %>% 
+  # expand the summary data frames
+  unnest(cols = c(window_30_summary)) %>% 
+  # filter data frame to only include 10km scale
+  filter(scale_km == 10) %>% 
+  # rename the environmental columns to include the scale
+  rename_with(~paste0(., "_10km"), sst_mean:chl_n) %>% 
+  # remove the scale column (now redundant because the column names have the scale in them)
+  select(-c(scale_km, site)) %>% 
+  # join with the cleaned urchin data set so that each observation now has environmental data attached
+  left_join(urchin_clean, ., by = "Inv_ID")
+
+# a little plot as a treat
+ggplot(data = env_30day_10km, aes(x = date_col, y = sst_mean_10km)) +
+  geom_linerange(aes(ymin = sst_mean_10km - sst_var_10km, ymax = sst_mean_10km + sst_var_10km)) +
+  geom_point() +
+  facet_wrap(~site)
 
